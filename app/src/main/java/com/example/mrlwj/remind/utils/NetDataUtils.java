@@ -24,6 +24,7 @@ public class NetDataUtils {
     public static final int ADD = 0;
     public static final int GETALL = 1;
     public static final int DEL = 3;
+    public static final int UPDATE = 4;
 
     private static  RequestQueue requestQueue = NoHttp.newRequestQueue();
     public static void send(Bean bean,ResCallBack callBack){
@@ -36,6 +37,17 @@ public class NetDataUtils {
         request.add("title",bean.title);
         request.add("content",bean.content);
         requestQueue.add(ADD, request, new MyListener(callBack,bean));
+    }
+    public static void update(Bean bean,ResCallBack callBack){
+        if(TextUtils.isEmpty(bean.content)){
+            callBack.handle(false,"内容不能为空",bean);
+            return;
+        }
+        String url = MainActivity.context.getString(R.string.update_url);
+        Request<String> request = NoHttp.createStringRequest(url, RequestMethod.POST);
+        request.add("id",bean.id);
+        request.add("content",bean.content);
+        requestQueue.add(UPDATE, request, new MyListener(callBack,bean));
     }
     public static void getJson(ResCallBack callBack){
         String url = MainActivity.context.getString(R.string.json_url);
@@ -51,7 +63,11 @@ public class NetDataUtils {
     public interface ResCallBack{
         void handle(boolean success,String msg,Bean bean);
     }
-
+    public static String getCurTime(){
+        Date date=new Date();
+        DateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+        return format.format(date);
+    }
 }
 class MyListener implements OnResponseListener<String>{
 
@@ -68,25 +84,25 @@ class MyListener implements OnResponseListener<String>{
 
     @Override
     public void onSucceed(int i, Response<String> response) {
+        String resp = response.get();
         switch(i){
             case NetDataUtils.ADD:
-                String resp = response.get();
                 if(TextUtils.isDigitsOnly(resp)){
                     mBean.id = resp;
-                    Date date=new Date();
-                    DateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm");
-                    String time=format.format(date);
-                    mBean.time = time;
+                    mBean.lastTime = mBean.createTime = NetDataUtils.getCurTime();
                     mCallBack.handle(true,resp,mBean);
                 }else{
                     mCallBack.handle(false,resp,mBean);
                 }
                 break;
             case NetDataUtils.GETALL:
-                mCallBack.handle(true,response.get(),null);
+                mCallBack.handle(true,resp,null);
                 break;
             case NetDataUtils.DEL:
-                mCallBack.handle(response.get().equals("1"),response.get(),mBean);
+                mCallBack.handle(resp.equals("1"),resp,mBean);
+                break;
+            case NetDataUtils.UPDATE:
+                mCallBack.handle(TextUtils.isDigitsOnly(resp),resp,mBean);
                 break;
         }
     }

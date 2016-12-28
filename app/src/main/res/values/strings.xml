@@ -3,7 +3,8 @@
 
     <string name="hello_world">Hello world!</string>
     <string name="action_add">添加</string>
-    <string name="send_url">http://hellolwj.cn/an</string>
-    <string name="json_url">http://hellolwj.cn/all</string>
-    <string name="del_url">http://hellolwj.cn/del</string>
+    <string name="send_url">http://172.18.2.16/an</string>
+    <string name="json_url">http://172.18.2.16/all</string>
+    <string name="del_url">http://172.18.2.16/del</string>
+    <string name="update_url">http://172.18.2.16/update</string>
 </resources>

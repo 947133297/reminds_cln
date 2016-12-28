@@ -1,5 +1,6 @@
 package com.example.mrlwj.remind;
 
+import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -45,7 +46,8 @@ public class MyAdapter extends BaseAdapter {
         holder.tvContent.setText(mDataList.get(position).content);
         holder.tvTitle.setText(mDataList.get(position).title);
         holder.tvDataId.setText("#"+mDataList.get(position).id);
-        holder.tvTime.setText(mDataList.get(position).time);
+        holder.tvCreateTime.setText("创建时间："+mDataList.get(position).createTime);
+        holder.tvLastTime.setText("修改时间："+mDataList.get(position).lastTime);
         return convertView;
     }
     class Holder{
@@ -53,8 +55,9 @@ public class MyAdapter extends BaseAdapter {
             tvTitle = (TextView) root.findViewById(R.id.item_title);
             tvContent = (TextView) root.findViewById(R.id.item_content);
             tvDataId = (TextView) root.findViewById(R.id.item_data_id);
-            tvTime = (TextView) root.findViewById(R.id.item_time);
+            tvCreateTime = (TextView) root.findViewById(R.id.item_create_time);
+            tvLastTime = (TextView) root.findViewById(R.id.item_last_time);
         }
-        TextView tvTitle,tvContent,tvDataId,tvTime;
+        TextView tvTitle,tvContent,tvDataId, tvCreateTime,tvLastTime;
     }
 }
