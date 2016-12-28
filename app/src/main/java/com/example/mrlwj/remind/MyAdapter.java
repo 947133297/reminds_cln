@@ -1,5 +1,6 @@
 package com.example.mrlwj.remind;
 
+import android.graphics.Color;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
@@ -43,14 +44,20 @@ public class MyAdapter extends BaseAdapter {
         }else{
             holder = (Holder) convertView.getTag();
         }
-        holder.tvContent.setText(mDataList.get(position).content);
-        holder.tvTitle.setText(mDataList.get(position).title);
-        holder.tvDataId.setText("#"+mDataList.get(position).id);
-        holder.tvCreateTime.setText("创建时间："+mDataList.get(position).createTime);
-        holder.tvLastTime.setText("修改时间："+mDataList.get(position).lastTime);
+        Bean target = mDataList.get(position);
+        holder.tvContent.setText(target.content);
+        holder.tvTitle.setText(target.title);
+        holder.tvDataId.setText("#"+target.id);
+        holder.tvCreateTime.setText("创建时间："+target.createTime);
+        if(target.state == Bean.State.FINISHED){
+            holder.tvLastTime.setText("完成时间："+target.lastTime);
+            holder.tvLastTime.setTextColor(Color.RED);
+        }else{
+            holder.tvLastTime.setText("修改时间："+target.lastTime);
+        }
         return convertView;
     }
-    class Holder{
+    public class Holder{
         public Holder(View root){
             tvTitle = (TextView) root.findViewById(R.id.item_title);
             tvContent = (TextView) root.findViewById(R.id.item_content);
@@ -58,6 +65,6 @@ public class MyAdapter extends BaseAdapter {
             tvCreateTime = (TextView) root.findViewById(R.id.item_create_time);
             tvLastTime = (TextView) root.findViewById(R.id.item_last_time);
         }
-        TextView tvTitle,tvContent,tvDataId, tvCreateTime,tvLastTime;
+        public TextView tvTitle,tvContent,tvDataId, tvCreateTime,tvLastTime;
     }
 }

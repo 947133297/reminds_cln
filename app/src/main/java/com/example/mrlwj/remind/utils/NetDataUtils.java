@@ -25,6 +25,7 @@ public class NetDataUtils {
     public static final int GETALL = 1;
     public static final int DEL = 3;
     public static final int UPDATE = 4;
+    public static final int CHANGE = 5;
 
     private static  RequestQueue requestQueue = NoHttp.newRequestQueue();
     public static void send(Bean bean,ResCallBack callBack){
@@ -49,16 +50,17 @@ public class NetDataUtils {
         request.add("content",bean.content);
         requestQueue.add(UPDATE, request, new MyListener(callBack,bean));
     }
+    public static void changeState(Bean bean,ResCallBack callBack){
+        String url = MainActivity.context.getString(R.string.change_url);
+        Request<String> request = NoHttp.createStringRequest(url, RequestMethod.POST);
+        request.add("id",bean.id);
+        request.add("state",bean.state);
+        requestQueue.add(CHANGE, request, new MyListener(callBack,bean));
+    }
     public static void getJson(ResCallBack callBack){
         String url = MainActivity.context.getString(R.string.json_url);
         Request<String> request = NoHttp.createStringRequest(url, RequestMethod.GET);
         requestQueue.add(GETALL, request, new MyListener(callBack, null));
-    }
-    public static void delItem(Bean bean,ResCallBack callBack){
-        String url = MainActivity.context.getString(R.string.del_url);
-        Request<String> request = NoHttp.createStringRequest(url, RequestMethod.GET);
-        request.add("id",bean.id);
-        requestQueue.add(DEL, request, new MyListener(callBack,bean));
     }
     public interface ResCallBack{
         void handle(boolean success,String msg,Bean bean);
@@ -102,6 +104,9 @@ class MyListener implements OnResponseListener<String>{
                 mCallBack.handle(resp.equals("1"),resp,mBean);
                 break;
             case NetDataUtils.UPDATE:
+                mCallBack.handle(TextUtils.isDigitsOnly(resp),resp,mBean);
+                break;
+            case NetDataUtils.CHANGE:
                 mCallBack.handle(TextUtils.isDigitsOnly(resp),resp,mBean);
                 break;
         }

@@ -3,10 +3,25 @@ package com.example.mrlwj.remind.bean;
 import java.lang.reflect.Field;
 
 public class Bean{
+    public interface State{
+        int INIT = 0;
+        int FINISHED = 1;
+        int DEL = 2;
+
+    }
         public String title;
         public String content;
         public String id;
 
+    public int getState() {
+        return state;
+    }
+
+    public void setState(int state) {
+        this.state = state;
+    }
+
+    public int state;
     public String getCreateTime() {
         return createTime;
     }

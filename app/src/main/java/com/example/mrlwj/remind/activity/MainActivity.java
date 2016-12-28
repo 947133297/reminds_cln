@@ -2,6 +2,7 @@ package com.example.mrlwj.remind.activity;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.graphics.Color;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
@@ -20,6 +21,7 @@ import com.example.mrlwj.remind.utils.UiUtils;
 import com.yolanda.nohttp.Logger;
 import com.yolanda.nohttp.NoHttp;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -138,7 +140,7 @@ public class MainActivity extends ActionBarActivity {
                 return;
             }
             dataList.add(bean);
-            dataMap.put(bean.id,bean);
+            dataMap.put(bean.id, bean);
             myAdapter.notifyDataSetChanged();
         }
     }
@@ -170,11 +172,17 @@ public class MainActivity extends ActionBarActivity {
     public static final int FINISH = 2;
 
     private void showOptionDlg(final int index){
+        boolean isFinish = dataList.get(index).getState() == Bean.State.FINISHED;
        new AlertDialog.Builder(this)
-        .setItems(ops, new OnDlgItemClickListener(index))
+        .setItems(isFinish? Arrays.copyOfRange(ops,0,1):ops, new OnDlgItemClickListener(index))
         .show();
     }
-
+    public void showFinish(int index){
+        View v = mlistView.getChildAt(index);
+        MyAdapter.Holder holder = (MyAdapter.Holder) v.getTag();
+        holder.tvLastTime.setText("完成时间："+dataList.get(index).lastTime);
+        holder.tvLastTime.setTextColor(Color.RED);
+    }
     class OnDlgItemClickListener implements DialogInterface.OnClickListener{
         private int index;
 
@@ -184,16 +192,22 @@ public class MainActivity extends ActionBarActivity {
 
         @Override
         public void onClick(DialogInterface dialog, int which) {
+            final Bean target = new Bean();
             switch(which){
                 case DEL:
-                    NetDataUtils.delItem(dataList.get(index), new NetDataUtils.ResCallBack() {
+                    target.state = Bean.State.DEL;
+                    target.id = dataList.get(index).getId();
+                    NetDataUtils.changeState(target, new NetDataUtils.ResCallBack() {
                         @Override
                         public void handle(boolean success, String msg, Bean bean) {
-                            if(success){
-                                dataList.remove(index);
-                                myAdapter.notifyDataSetChanged();
+                            if (!success) {
+                                UiUtils.showToast("删除失败"+msg);
+                                return;
                             }
-                            UiUtils.showToast(success?"刪除成功":"刪除失敗");
+                            UiUtils.showToast("删除成功了");
+                            dataList.remove(index);
+                            dataMap.remove(target.id);
+                            myAdapter.notifyDataSetChanged();
                         }
                     });
                     break;
@@ -201,6 +215,20 @@ public class MainActivity extends ActionBarActivity {
                     showEditDlg(index);
                     break;
                 case FINISH:
+                    target.state = Bean.State.FINISHED;
+                    target.id = dataList.get(index).getId();
+                    NetDataUtils.changeState(target, new NetDataUtils.ResCallBack() {
+                        @Override
+                        public void handle(boolean success, String msg, Bean bean) {
+                            if(!success){
+                                UiUtils.showToast("标记失败"+msg);
+                                return;
+                            }
+                            showFinish(index);
+                            dataList.get(index).setState(Bean.State.FINISHED);
+                            UiUtils.showToast("标记成功了");
+                        }
+                    });
                     break;
             }
         }
